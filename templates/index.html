@@ -404,10 +404,10 @@
         wolWakeup: function (d) {
 		  console.log("WOL Wakeup: " + d.udid)
           $.ajax({
-            url: "/devices/" + d.udid + "/shell",
+            url: "/wol/" + d.hwaddr,
             method: "post",
             data: {
-              command: "input keyevent HOME"
+              command: ""
             }
           })
         },
