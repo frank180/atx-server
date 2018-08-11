@@ -156,7 +156,7 @@
                 <a v-if="!d.using" target="_blank" class="btn btn-xs btn-link" :href='"/devices/"+d.udid+"/remote"'>
                   Use
                 </a>
-                <span class="color-red" v-if="d.using" @dblclick.alt="releaseDevice(d.udid)">Busy</span>
+                <span class="color-red" v-if="d.using" @dblclick.alt="releaseDevice(d.udid)">Busy {{d.owner && d.owner.ip}}</span>
               </template>
               <span v-text="d.reserved"> </span>
             </td>
@@ -328,6 +328,9 @@
           this.errmsg = "Connecting"
 
           var ws = new WebSocket("ws://" + location.host + "/feeds")
+          var key = setInterval(function () {
+            ws.send("ping")
+          }, 5000);
           ws.onopen = function () {
             console.log("websocket connected")
             this.errmsg = "";
@@ -359,6 +362,7 @@
           }.bind(this)
           ws.onclose = function (evt) {
             console.log("websocket closed")
+            clearInterval(key)
             this.errmsg = "Server connection closed. " + this.errmsg;
           }.bind(this)
         },
