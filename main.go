@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"encoding/binary"
 	"fmt"
 	"io/ioutil"
 	"math"
@@ -24,6 +25,10 @@ const (
 	defaultATXAgentVersion = "0.3.6"
 )
 
+type BroadcastPacket struct {
+	payload [6]byte
+}
+
 var (
 	port            = kingpin.Flag("port", "http server listen port").Short('p').Default("8000").Int()
 	addr            = kingpin.Flag("addr", "http server listen address").Default(":8000").String()
@@ -33,6 +38,8 @@ var (
 	atxAgentVersion string
 	dingtalkToken   string
 )
+
+var BROADCAST_INTERVAL=1*time.Second
 
 func handleWebsocketMessage(host string, message []byte) {
 	return
@@ -156,6 +163,54 @@ func batchRunCommand(command string) {
 	wg.Wait()
 }
 
+func NewBroadcastPacket() *BroadcastPacket {
+    var packet BroadcastPacket
+
+    // Setup the payload which 'khadas'
+    packet.payload[0] = 'k'; // k
+    packet.payload[1] = 'h'; // h
+    packet.payload[2] = 'a'; // a
+    packet.payload[3] = 'd'; // d
+    packet.payload[4] = 'a'; // a
+    packet.payload[5] = 's'; // s
+
+    return &packet
+}
+
+func SendBroadcastPacket() error {
+    broadcastPacket := NewBroadcastPacket()
+
+    // Fill our byte buffer with the bytes in our BroadcastPacket
+    var buf bytes.Buffer
+    binary.Write(&buf, binary.BigEndian, broadcastPacket)
+
+    // Get a UDPAddr to send the broadcast to
+    udpAddr, err := net.ResolveUDPAddr("udp", "255.255.255.255:4001")
+    if err != nil {
+        fmt.Printf("Unable to get a UDP address for %s\n", "255.255.255.255:4001")
+        return err
+    }
+
+    // Open a UDP connection, and defer its cleanup
+    connection, err := net.DialUDP("udp", nil, udpAddr)
+    if err != nil {
+        fmt.Printf("Unable to dial UDP address for %s\n", "255.255.255.255:4001")
+        return err
+    }
+    defer connection.Close()
+
+    // Write the bytes of the MagicPacket to the connection
+    bytesWritten, err := connection.Write(buf.Bytes())
+    if err != nil {
+        fmt.Printf("Unable to write packet to connection\n")
+        return err
+    } else if bytesWritten != 6 {
+        fmt.Printf("Warning: %d bytes written, %d expected!\n", bytesWritten, 6)
+    }
+
+    return nil
+}
+
 func main() {
 	// Refs: atx-agent version https://github.com/openatx/atx-agent/releases
 	kingpin.Flag("agent", "atx-agent version").Default(defaultATXAgentVersion).StringVar(&atxAgentVersion)
@@ -183,6 +238,13 @@ func main() {
 
 	log.Info("initial database")
 	initDB(*rdbAddr, *rdbName)
+	log.Info("start broadcast")
+	go func() {
+		for {
+			SendBroadcastPacket()
+			time.Sleep(BROADCAST_INTERVAL)
+		}
+	}()
 	log.Info("listen address", *addr)
 	log.Fatal(http.ListenAndServe(*addr, newHandler()))
 }
