@@ -512,9 +512,11 @@ func newHandler() http.Handler {
 	hbs := heartbeat.NewServer("hello kitty", 15*time.Second)
 	hbs.OnConnect = func(identifier string, r *http.Request) {
 		host := realip.FromRequest(r)
+		macaddr := strings.Split(identifier, "-")[1]
 		db.DeviceUpdateOrInsert(proto.DeviceInfo{
 			Udid: identifier,
 			IP:   host,
+			Serial: macaddr,
 		})
 		log.Println(identifier, "is online")
 	}
@@ -522,9 +524,11 @@ func newHandler() http.Handler {
 	// Called when client ip changes
 	hbs.OnReconnect = func(identifier string, r *http.Request) {
 		host := realip.FromRequest(r)
+		macaddr := strings.Split(identifier, "-")[1]
 		db.DeviceUpdateOrInsert(proto.DeviceInfo{
 			Udid: identifier,
 			IP:   host,
+			Serial: macaddr,
 		})
 		log.Println(identifier, "is reconnected")
 	}

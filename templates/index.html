@@ -164,8 +164,9 @@
               <span v-text="d.ip"></span>
             </td>
             <td class="hidden-xs" style="font-family: 'Courier New', Courier, monospace">
-              {{d.serial | shortString(10)}}
+              <!-- {{d.serial | shortString(10)}} -->
               <!-- <span v-text='d.serial && d.serial.slice(4)+"..."' class="visible-xs"></span> -->
+			  <span v-text="d.serial"></span>
             </td>
             <td v-text="d.propertyId"></td>
             <td>
