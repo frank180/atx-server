@@ -408,7 +408,7 @@
         wolWakeup: function (d) {
 		  console.log("WOL Wakeup: " + d.udid)
           $.ajax({
-            url: "/wol/" + d.hwaddr,
+            url: "/wol/" + d.udid,
             method: "post",
             data: {
               command: ""

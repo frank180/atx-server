@@ -502,8 +502,8 @@ func newHandler() http.Handler {
 		}
 	}).Methods("POST")
 
-	r.HandleFunc("/wol/{macaddr}", func(w http.ResponseWriter, r *http.Request) {
-		macaddr := mux.Vars(r)["macaddr"]
+	r.HandleFunc("/wol/{udid}", func(w http.ResponseWriter, r *http.Request) {
+		macaddr := strings.Split(mux.Vars(r)["udid"], "-")[1]
 		log.Info("WOL Wakeup, MAC address: ", macaddr)
 		SendMagicPacket(macaddr)
 	})
