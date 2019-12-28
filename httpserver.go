@@ -25,7 +25,7 @@ import (
 	"github.com/koding/websocketproxy"
 	hb2 "github.com/openatx/atx-server/heartbeat"
 	"github.com/openatx/atx-server/proto"
-	"github.com/qiniu/log"
+	"github.com/qiniu/logkit"
 )
 
 var (

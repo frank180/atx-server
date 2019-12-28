@@ -17,7 +17,7 @@ import (
 	"github.com/codeskyblue/dingrobot"
 	"github.com/gorilla/websocket"
 	"github.com/openatx/atx-server/proto"
-	"github.com/qiniu/log"
+	"github.com/qiniu/logkit"
 )
 
 const (

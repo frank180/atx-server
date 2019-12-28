@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/openatx/atx-server/proto"
-	"github.com/qiniu/log"
+	"github.com/qiniu/logkit"
 	r "gopkg.in/gorethink/gorethink.v4"
 )
 
